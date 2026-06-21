@@ -1,0 +1,1 @@
+A small travel agency used a travel planning bot to reduce client overpayments and streamline itinerary planning. The bot checks live prices and factors in weather, resulting in decreased planning time and itinerary revisions. Clients also reported booking cheaper flights.

@@ -1,0 +1,1 @@
+A WhatsApp-based agriculture bot was developed for a small farmer cooperative in rural Maharashtra, providing mandi prices, weather updates, and more. The bot saved farmers time and helped some catch crop diseases early. Adoption varied by age and literacy.

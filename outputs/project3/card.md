@@ -1,0 +1,1 @@
+A small fintech startup saw improved drop-off rates after a 4-week onboarding redesign project. Support tickets for confusing signups nearly disappeared, with the founder citing it as the best investment of the year.

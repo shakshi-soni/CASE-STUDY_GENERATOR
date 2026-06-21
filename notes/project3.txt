@@ -1,0 +1,7 @@
+client: small fintech startup, pre-seed, 5 person team
+problem: onboarding flow had high drop-off, didn't know exactly why
+what we built: redesigned onboarding + added analytics tracking to find drop points
+timeline: 4 weeks
+results: drop-off "improved" per founder
+qualitative: support tickets about "confusing signup" went away almost completely
+founder quote (paraphrased in notes, not exact): said it was the best money they spent this year

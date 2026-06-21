@@ -1,0 +1,12 @@
+client: small farmer cooperative, rural Maharashtra region
+problem: farmers struggling to access mandi prices, weather updates, crop disease treatment info, and government scheme details - scattered across different sources, 
+often outdated, many farmers don't have smartphones with apps
+what we built: a WhatsApp-based agriculture bot - farmers message it and get mandi 
+prices, weather forecast, crop disease/treatment suggestions, and govt scheme alerts
+took about 2-3 weeks to build
+piloted with around 35-40 farmers across two villages
+farmers said it saved them time they used to spend traveling to check mandi prices, 
+no exact number tracked on time saved
+some farmers reported catching a crop disease early because of the bot's alerts, 
+cooperative head mentioned this anecdotally, not formally logged
+adoption was slower with older farmers, faster with younger/literate ones

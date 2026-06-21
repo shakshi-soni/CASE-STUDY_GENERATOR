@@ -1,0 +1,9 @@
+client: small independent travel agency
+problem: clients often ended up overpaying because flight/train prices change fast and manual checking across multiple sites was slow, itinerary planning took agents hours per client
+what we built: a travel planning bot - checks live flight and train prices, builds an itinerary within the client's stated budget, factors in weather for the destination
+took about 2-3 weeks to build
+agency said planning time per client "dropped a lot" but never gave an exact number of hours saved
+one thing they did track: number of itinerary revisions per client went down, 
+though they didn't share the before/after count clearly
+a few clients mentioned booking cheaper flights than they expected, agency didn't 
+formally measure total savings across all clients
