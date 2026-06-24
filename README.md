@@ -91,6 +91,11 @@ outputs/
 │   └── linkedin_post.md
 
 └── project3/
+│   ├── case_study.md
+
+│   ├── card.md
+
+│   └── linkedin_post.md
 
 ├── case_study.md
 
@@ -124,8 +129,18 @@ case-study-generator/
 │   │   └── linkedin_post.md
 
 │   ├── project2/
+│   │   ├── case_study.md
+
+│   │   ├── card.md
+
+│   │   └── linkedin_post.md
 
 │   └── project3/
+│   │   ├── case_study.md
+
+│   │   ├── card.md
+
+│   │   └── linkedin_post.md
 
 ├── main.py                 # core pipeline
 
