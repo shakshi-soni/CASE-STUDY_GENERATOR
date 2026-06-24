@@ -97,11 +97,7 @@ outputs/
 
 │   └── linkedin_post.md
 
-├── case_study.md
 
-├── card.md
-
-└── linkedin_post.md
 ```
 
 ---
