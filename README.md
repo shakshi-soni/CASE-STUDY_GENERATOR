@@ -15,10 +15,6 @@ This task is **deterministic**: fixed input (notes), fixed output shape (three a
 
 Instead, this is a **simple pipeline**:
 
-```
-notes file  →  prompt (with grounding rules)  →  one LLM call  →  structured JSON  →  3 files written
-```
-
 One LLM call per project generates all three formats together as structured JSON, rather than three separate calls. This keeps the outputs consistent with each other, since they're all grounded in a single reasoning pass over the source notes rather than three independent ones that could drift apart.
 
 ---
@@ -74,7 +70,34 @@ echo "GROQ_API_KEY=your_key_here" > .env
 python main.py
 ```
 
-**Output:** for each `notes/<project>.txt`, you'll get `outputs/<project>/case_study.md`, `card.md`, and `linkedin_post.md`.
+**Output:** for each `notes/<project>.txt`, you'll get three files per project inside `outputs/`:
+
+outputs/
+```
+├── project1/
+
+│   ├── case_study.md
+
+│   ├── card.md
+
+│   └── linkedin_post.md
+
+├── project2/
+
+│   ├── case_study.md
+
+│   ├── card.md
+
+│   └── linkedin_post.md
+
+└── project3/
+
+├── case_study.md
+
+├── card.md
+
+└── linkedin_post.md
+```
 
 ---
 
@@ -84,15 +107,33 @@ python main.py
 
 ---
 
-## Project structure
-
-```
 case-study-generator/
+
+## Project structure
+```
 ├── notes/                  # raw input notes (sample projects included)
+
 ├── outputs/                # generated case studies land here
+
+│   ├── project1/
+
+│   │   ├── case_study.md
+
+│   │   ├── card.md
+
+│   │   └── linkedin_post.md
+
+│   ├── project2/
+
+│   └── project3/
+
 ├── main.py                 # core pipeline
+
 ├── prompt_template.py      # grounding rules + prompt construction
-├── workflow.json            # n8n export
+
+├── workflow.json           # n8n export
+
 ├── requirements.txt
+
 └── README.md
 ```
