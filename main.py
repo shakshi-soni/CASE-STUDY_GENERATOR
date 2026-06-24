@@ -2,7 +2,7 @@ import json
 import os
 from pathlib import Path
 from groq import Groq
-import prompts
+import prompt_template as prompts
 
 if not os.environ.get("GROQ_API_KEY"):
     print("❌ Error: GROQ_API_KEY environment variable not found.")
