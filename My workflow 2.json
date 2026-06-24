@@ -1,0 +1,113 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "97a80644-12b4-498a-af01-6cae4af7836e",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  { \n    json: {\n      project_name: \"project1_maharashtra_agbot\", \n      notes: `proj: ag-bot pilot (rural maharastra)\nclent: small farmer coop.\n\nprob: farmers cant get mandi prices easily. gotta travel way too far to check physically. weather updates r scattered af, crop disease treatment info is hard to find, govt scheme details are all over the place and super outdated. most dont even have smartphones anyway.. click buttons text only??\n\nsol: built a basic text ag bot. farmers text it, get mandi prices, weather forecast, treatement suggestions, & govt alerts over simple SMS/WA.\n\ntimeline/metrics:\n- took like 2-3 weeks to build out maybe?\n- piloted with some farmers (like 35-40ish?) across 2 different villages.\n- Outcomes: farmers told the coop head it saved them some time traveling to check prices (idk no exact numbers tracked on actual time saved tho). \n- 1 farmer caught a crop disease early cuz of the bot's alert!! coop head mentioned this anecdotally, not formally logged anywhere.\n- Note: adoption was way slower with older generation, but faster with younger/literate guys.`\n    }\n  },\n  { \n    json: {\n      project_name: \"project2_travel_planning_bot\", \n      notes: `Project: Live Travel Planning & Pricing Bot\nclent: Indepndent boutique travel agency (small team, high volume)\n\ncontex/probs:\n- Agents wasting way too much time manual checking multiple flight/train sites. Prices change super fast, clients ending up overpaying coz of delays. Custom itineraries takes hours per client, huge bottleneck!! absolute nightmare.\n\nWhat we did:\n- Built an internal travel planning bot that pulls live flight/train pricing across a few APIs.\n- Auto-generates a full itinerary that strictly stays under whatever budget the client sets. Also pulls destination weather.\n\nTimeline & Numbers:\n- Built the core prototype in about 2-3 weeks.\n- Impact: Agency owner said planning time per client \"dropped a lot\" (never actually tracked or gave us the exact number of hours saved, typical lol).\n- Tracking win: Itinerary revisions per client went down drastically because first drafts were way more accurate. Didn't share exact before/after count though.\n- Savings: A few clients messaged saying they got much cheaper flights. Agency didn't formally measure total aggregate savings.`\n    }\n  },\n  { \n    json: {\n      project_name: \"project3_fintech_onboarding\", \n      notes: `Project: UX Redesgn & Analytics for Fintech Onboardin\nClient: Pre-seed fintech startup (super small, 5 person team)\n\nThe Issue:\n- User onboarding flow had a massive drop-off rate. The team had zero visibility into why or where users were quitting because there was no tracking set up. Just guessing blindly. fix asap.\n\nWhat we shipped:\n- Full redesign of the user onboarding user flow.\n- Integrated comprehensive analytics tracking at every single funnel step to pinpoint exact drop-off points moving forward.\n\nTimeline & Data points:\n- Took exactly 4 weeks from kickoff to launch.\n- Results: The founder mentioned that the drop-off metrics \"improved\" after launch (no hard analytics percentages or conversion numbers shared with us yet, need to ask them later).\n- Qualitative wins: Customer support tickets complaining about a \"confusing signup process\" dropped like a stone—went away almost completely.\n- Feedback: Founder literally told us over Slack (paraphrasing here) that this project was the best money they spent all year.`\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "1c05d07f-2503-4af1-81ef-4671e5ef5d5e",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a factual editor. Read these messy project notes:\n\n{{ $json.notes }}\n\nTransform these notes into three distinct formats based strictly on the facts provided above. \n\nCRITICAL GUARDRAILS:\n1. Ground every claim strictly in the text.\n2. DO NOT invent numerical values or metrics. If a metric is vague (e.g., 'saved time', 'improved metrics'), you MUST use honest hedging language (e.g., 'Reported unquantified time savings', 'led to directional improvements') rather than fabricating a specific percentage or timeline. \n\nOutput your response exactly as a valid JSON object with these three keys:\n{\n  \"case_study\": \"Write a Markdown string here with headings: ## Problem, ## Approach, ## Solution, ## Results.\",\n  \"web_card\": \"Write a punchy 2-sentence summary card for a website here.\",\n  \"linkedin\": \"Write an engaging, professional LinkedIn post text block here.\"\n}",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        416,
+        0
+      ],
+      "id": "a50a1616-8855-46ba-827d-7744c4b6775d",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "=llama-3.1-8b-instant",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        352,
+        208
+      ],
+      "id": "7bced39f-4e66-442c-9a48-817971b64ce6",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "qOV3yX0VLahaQTYb",
+          "name": "maybe"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "6172c233-d5a3-4f19-a126-3305bd4eaf52",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1afd177d1a4d5da4f00eb812174e71d2cff5b64639ae489bad72c8a6e820c077"
+  },
+  "nodeGroups": [],
+  "id": "SXGQdEw8qXU4pxqO",
+  "tags": []
+}
