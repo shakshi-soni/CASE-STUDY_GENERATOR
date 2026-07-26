@@ -9,8 +9,8 @@
         0,
         0
       ],
-      "id": "97a80644-12b4-498a-af01-6cae4af7836e",
-      "name": "When clicking ‘Execute workflow’"
+      "id": "087c75dc-9561-4922-a38f-584d4583af91",
+      "name": "When clicking 'Execute workflow'"
     },
     {
       "parameters": {
@@ -22,13 +22,14 @@
         208,
         0
       ],
-      "id": "1c05d07f-2503-4af1-81ef-4671e5ef5d5e",
+      "id": "dd170b26-d13b-41dd-a07a-ee20d6cbc65d",
       "name": "Code in JavaScript"
     },
     {
       "parameters": {
         "promptType": "define",
-        "text": "=You are a factual editor. Read these messy project notes:\n\n{{ $json.notes }}\n\nTransform these notes into three distinct formats based strictly on the facts provided above. \n\nCRITICAL GUARDRAILS:\n1. Ground every claim strictly in the text.\n2. DO NOT invent numerical values or metrics. If a metric is vague (e.g., 'saved time', 'improved metrics'), you MUST use honest hedging language (e.g., 'Reported unquantified time savings', 'led to directional improvements') rather than fabricating a specific percentage or timeline. \n\nOutput your response exactly as a valid JSON object with these three keys:\n{\n  \"case_study\": \"Write a Markdown string here with headings: ## Problem, ## Approach, ## Solution, ## Results.\",\n  \"web_card\": \"Write a punchy 2-sentence summary card for a website here.\",\n  \"linkedin\": \"Write an engaging, professional LinkedIn post text block here.\"\n}",
+        "text": "=You are a factual editor. Read these messy project notes:\n\n{{ $json.notes }}\n\nTransform these notes into three distinct formats based strictly on the facts provided above. \n\nCRITICAL GUARDRAILS:\n1. Ground every claim strictly in the text.\n2. DO NOT invent numerical values or metrics. If a metric is vague (e.g., 'saved time', 'improved metrics'), you MUST use honest hedging language (e.g., 'Reported unquantified time savings', 'led to directional improvements') rather than fabricating a specific percentage or timeline.\n3. Output ONLY valid JSON matching the required schema. No preamble, no markdown fences.\n\nGIVE THREE DIFFRENT FILES FOR THREE DIFFRENT INPUTS",
+        "hasOutputParser": true,
         "batching": {}
       },
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
@@ -37,12 +38,13 @@
         416,
         0
       ],
-      "id": "a50a1616-8855-46ba-827d-7744c4b6775d",
-      "name": "Basic LLM Chain"
+      "id": "5febc15e-b3a7-4dd6-a372-959a9811cd81",
+      "name": "Basic LLM Chain",
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
-        "model": "=llama-3.1-8b-instant",
+        "model": "=llama-3.3-70b-versatile",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
@@ -51,19 +53,98 @@
         352,
         208
       ],
-      "id": "7bced39f-4e66-442c-9a48-817971b64ce6",
+      "id": "eb0f7aeb-7c30-4f60-b4d7-13a36907ab74",
       "name": "Groq Chat Model",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1000,
       "credentials": {
         "groqApi": {
-          "id": "qOV3yX0VLahaQTYb",
-          "name": "maybe"
+          "id": "npgP7sf8L65vnfoA",
+          "name": "Groq account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"case_study\": { \"type\": \"string\" },\n    \"web_card\": { \"type\": \"string\" },\n    \"linkedin\": { \"type\": \"string\" }\n  },\n  \"required\": [\"case_study\", \"web_card\", \"linkedin\"]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        624,
+        208
+      ],
+      "id": "c348e123-4155-474b-8bd1-51f88df8f54b",
+      "name": "Structured Output Parser",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Helper to recursively find the structured object from the parser output\nfunction findFields(obj) {\n  if (!obj || typeof obj !== 'object') return null;\n  if (obj.case_study !== undefined) return obj;\n  for (const key of Object.keys(obj)) {\n    const found = findFields(obj[key]);\n    if (found) return found;\n  }\n  return null;\n}\n\n// Extract parsed response from current item\nconst currentInput = $input.item.json || {};\nconst raw = findFields(currentInput) || {};\n\n// Fetch source details from the matching input item\nconst originalItem = $(\"Code in JavaScript\").item.json || {};\nconst sourceNotes = originalItem.notes || '';\nconst projectName = originalItem.project_name || 'unknown_project';\n\nconst caseStudy = raw.case_study || '';\nconst webCard = raw.web_card || '';\nconst linkedin = raw.linkedin || '';\n\n// Handle failed extraction\nif (!caseStudy && !webCard && !linkedin) {\n  return {\n    json: {\n      project_name: projectName,\n      validation_status: 'ERROR_NO_DATA_FOUND',\n      debug_raw_input: JSON.stringify(currentInput).slice(0, 1000)\n    }\n  };\n}\n\n// Perform validation check on numbers\nconst combinedOutput = `${caseStudy} ${webCard} ${linkedin}`;\nconst numberPattern = /\\d+(\\.\\d+)?%?/g;\n\nconst outputNumbers = combinedOutput.match(numberPattern) || [];\nconst sourceNumbers = sourceNotes.match(numberPattern) || [];\nconst fabricated = outputNumbers.filter(n => !sourceNumbers.includes(n));\n\n// Return a single JSON object for THIS item\nreturn {\n  json: {\n    project_name: projectName,\n    case_study: caseStudy,\n    web_card: webCard,\n    linkedin: linkedin,\n    validation_status: fabricated.length === 0 ? 'PASS' : 'FLAGGED',\n    fabricated_numbers: fabricated,\n    checked_at: new Date().toISOString()\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        832,
+        0
+      ],
+      "id": "6be8be39-561c-418c-b405-d42ead29b680",
+      "name": "Validate Against Source"
+    },
+    {
+      "parameters": {
+        "operation": "toJson",
+        "mode": "each",
+        "options": {
+          "fileName": "=={{ $json.project_name }}.json"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1040,
+        0
+      ],
+      "id": "ca0d2ce1-8066-42b3-af11-ddbcd9a6941a",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "name": "={{ $binary.data.fileName }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "mode": "list",
+          "value": "root"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1248,
+        0
+      ],
+      "id": "b45b8d47-d09e-4c2a-bd32-449d1c41bc60",
+      "name": "Upload to Google Drive",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "JJQM2s9fQcPjw37K",
+          "name": "Google Drive account"
         }
       }
     }
   ],
   "pinData": {},
   "connections": {
-    "When clicking ‘Execute workflow’": {
+    "When clicking 'Execute workflow'": {
       "main": [
         [
           {
@@ -95,6 +176,50 @@
           }
         ]
       ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Validate Against Source",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Against Source": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Upload to Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
@@ -102,12 +227,12 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "6172c233-d5a3-4f19-a126-3305bd4eaf52",
+  "versionId": "d0fc2ff0-a18a-406e-8894-ed2e2caeab47",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "1afd177d1a4d5da4f00eb812174e71d2cff5b64639ae489bad72c8a6e820c077"
+    "instanceId": "86870caaf0020a79c9416f5e300804261c23f4db03a63f08aae58626929e499b"
   },
   "nodeGroups": [],
-  "id": "SXGQdEw8qXU4pxqO",
+  "id": "bJgIZqqg2Bq0XjtB",
   "tags": []
 }
